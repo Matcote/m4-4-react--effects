@@ -116,12 +116,12 @@ You _definitely_ don't want to do this in every render
 ```js
 const App = () => {
   const [cart, setCart] = React.useState({});
-
+  //option 1 BAD, renders infinitely
   fetch("some-url").then((data) => {
     console.log("Got data:", data);
     setCart(data);
   });
-
+  //option 2
   React.useEffect(() => {
     fetch("some-url").then((data) => {
       console.log("Got data:", data);
@@ -129,7 +129,7 @@ const App = () => {
     });
 
     return JSON.stringify(cart, null, 2);
-  }, [cart]);
+  }, []); // <--- empty box makes it so it only runs on initial render
 
   // ...
 };
@@ -151,7 +151,9 @@ Update the following snippets to make use of `useEffect`
 const App = () => {
   const [count, setCount] = React.useState(0);
 
-  document.title = `You have clicked ${count} times`;
+  React.useEffect(() => {
+    document.title = `You have clicked ${count} times`;
+  }, [count]);
 
   return <button onClick={() => setCount(count + 1)}>Increment</button>;
 };
@@ -163,9 +165,12 @@ const App = () => {
 const App = ({ color }) => {
   const [value, setValue] = React.useState(false);
 
-  window.localStorage.setItem("value", value);
-  window.localStorage.setItem("color", color);
-
+  React.useEffect(() => {
+    console.log("value has changed");
+  }, [value]);
+  React.useEffect(() => {
+    console.log("color has changed");
+  }, [color]);
   return (
     <div>
       Value: {value}
@@ -179,11 +184,13 @@ const App = ({ color }) => {
 
 ```js
 const Modal = ({ handleClose }) => {
-  window.addEventListener("keydown", (ev) => {
-    if (ev.code === "Escape") {
-      handleClose();
-    }
-  });
+  React.useEffect(() => {
+    window.addEventListener("keydown", (ev) => {
+      if (ev.code === "Escape") {
+        handleClose();
+      }
+    });
+  }, []);
 
   return <div>Modal stuff</div>;
 };
@@ -297,9 +304,12 @@ Make sure to do the appropriate cleanup work
 // seTimeout is similar to setInterval...
 const App = () => {
   React.useEffect(() => {
-    window.setTimeout(() => {
+    const timeOutId = window.setTimeout(() => {
       console.log("1 second after update!");
     });
+    return () => {
+      window.clearTimeout(timeOutId);
+    };
   }, []);
 
   return null;
@@ -311,9 +321,14 @@ const App = () => {
 ```js
 const App = () => {
   React.useEffect(() => {
-    window.addEventListener("keydown", (ev) => {
+    const handleKeyPress = (ev) => {
       console.log("You pressed: " + ev.code);
-    });
+    };
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () = {
+      window.removeEventListener("keydown", handleKeyPress);
+    }
   }, []);
 
   return null;
@@ -386,6 +401,34 @@ const App = ({ path }) => {
 
 ```js
 // refactoring time...
+const useData = () => {
+  const [mousePosition, setMousePosition] = React.useState({
+    x: null,
+    y: null,
+  });
+
+  React.useEffect(() => {
+    const handleMousemove = (ev) => {
+      setMousePosition({ x: ev.clientX, y: ev.clientY });
+    };
+
+    window.addEventListener("mousemove", handleMousemove);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMousemove);
+    };
+  }, []);
+  return mousePosition;
+};
+
+const App = ({ path }) => {
+  const mousePosition = useData();
+  return (
+    <div>
+      The mouse is at {mousePosition.x}, {mousePosition.y}.
+    </div>
+  );
+};
 ```
 
 </div>
@@ -400,7 +443,7 @@ Extract a custom hook
 ---
 
 ```js
-const App = ({ path }) => {
+const useGetData = (path) => {
   const [data, setData] = React.useState(null);
 
   React.useEffect(() => {
@@ -410,7 +453,10 @@ const App = ({ path }) => {
         setData(json);
       });
   }, [path]);
-
+  return JSON.stringify(data);
+};
+const App = ({ path }) => {
+  const data = useGetData(path);
   return <span>Data: {JSON.stringify(data)}</span>;
 };
 ```
@@ -418,6 +464,7 @@ const App = ({ path }) => {
 ---
 
 ```js live=true
+//did not do this one...
 const Time = ({ throttleDuration }) => {
   const [time, setTime] = React.useState(new Date());
 

@@ -74,9 +74,8 @@ Fix the following state hooks
 
 ```js
 const Button = ({ type, children }) => {
+  const [color, setColor] = React.useState("red");
   if (type === "primary") {
-    const [color, setColor] = React.useState("red");
-
     return (
       <button
         style={{ color }}
@@ -90,8 +89,7 @@ const Button = ({ type, children }) => {
         {children}
       </button>
     );
-  } else {
-    return <button style={{ backgroundColor: "purple" }}>{children}</button>;
   }
+  return <button style={{ backgroundColor: "purple" }}>{children}</button>;
 };
 ```
