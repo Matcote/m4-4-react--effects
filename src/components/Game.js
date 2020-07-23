@@ -5,10 +5,6 @@ import Item from "./Item";
 
 import cookieSrc from "../cookie.svg";
 
-const handleClick = () => {
-  console.log("click!");
-};
-
 const items = [
   { id: "cursor", name: "Cursor", cost: 10, value: 1 },
   { id: "grandma", name: "Grandma", cost: 100, value: 10 },
@@ -17,11 +13,22 @@ const items = [
 
 const Game = () => {
   // TODO: Replace this with React state!
-  const numCookies = 100;
-  const purchasedItems = {
+  const [numCookies, setNumCookies] = React.useState(0);
+  const [purchasedItems, setPurchasedItems] = React.useState({
     cursor: 0,
     grandma: 0,
     farm: 0,
+  });
+  const handleClick = (item) => {
+    if (numCookies < item.cost) {
+      window.alert("YOU NEED MORE COOKIES!!!!!!!");
+      return;
+    }
+    setPurchasedItems({
+      ...purchasedItems,
+      [item.name.toLowerCase()]: purchasedItems[item.name.toLowerCase()] + 1,
+    });
+    setNumCookies(numCookies - item.cost);
   };
 
   return (
@@ -33,7 +40,10 @@ const Game = () => {
           <strong>0</strong> cookies per second
         </Indicator>
         <Button>
-          <Cookie src={cookieSrc} />
+          <Cookie
+            src={cookieSrc}
+            onClick={() => setNumCookies(numCookies + 1)}
+          />
         </Button>
       </GameArea>
 
