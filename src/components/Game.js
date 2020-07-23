@@ -37,12 +37,23 @@ const Game = () => {
   };
   useInterval(() => {
     const numOfGeneratedCookies = calculateCookiesPerTick(purchasedItems);
-
     // Add this number of cookies to the total
     setNumCookies(numCookies + numOfGeneratedCookies);
   }, 1000);
+
   React.useEffect(() => {
     document.title = numCookies + " cookies - Workshop";
+  }, [numCookies]);
+  React.useEffect(() => {
+    const handleKeydown = (ev) => {
+      if (ev.code === "Space") {
+        setNumCookies(numCookies + 1);
+      }
+    };
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
   }, [numCookies]);
 
   return (
@@ -50,7 +61,6 @@ const Game = () => {
       <GameArea>
         <Indicator>
           <Total>{numCookies} cookies</Total>
-          {/* TODO: Calcuate the cookies per second and show it here: */}
           <strong>{numOfGeneratedCookies}</strong> cookies per second
         </Indicator>
         <Button>
