@@ -41,6 +41,9 @@ const Game = () => {
     // Add this number of cookies to the total
     setNumCookies(numCookies + numOfGeneratedCookies);
   }, 1000);
+  React.useEffect(() => {
+    document.title = numCookies + " cookies - Workshop";
+  }, [numCookies]);
 
   return (
     <Wrapper>
