@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
-const Item = ({ item, numOwned, handleClick }) => {
-  return (
+const Item = ({ item, numOwned, handleClick, myRef }) => {
+  let output = (
     <ItemBox onClick={() => handleClick(item)}>
       <div>
         <h3>{item.name}</h3>
@@ -13,6 +13,20 @@ const Item = ({ item, numOwned, handleClick }) => {
       <span>{numOwned}</span>
     </ItemBox>
   );
+  if (myRef !== null && myRef !== undefined) {
+    output = (
+      <ItemBox ref={myRef} onClick={() => handleClick(item)}>
+        <div>
+          <h3>{item.name}</h3>
+          <p>
+            Cost: {item.cost} cookie(s).Produces {item.value} cookies/second.
+          </p>
+        </div>
+        <span>{numOwned}</span>
+      </ItemBox>
+    );
+  }
+  return output;
 };
 export default Item;
 

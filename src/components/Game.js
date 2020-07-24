@@ -23,6 +23,7 @@ const Game = () => {
     grandma: 0,
     farm: 0,
   });
+  const ref = React.useRef(null);
   const numOfGeneratedCookies = calculateCookiesPerTick(purchasedItems);
   const handleClick = (item) => {
     if (numCookies < item.cost) {
@@ -31,7 +32,7 @@ const Game = () => {
     }
     setPurchasedItems({
       ...purchasedItems,
-      [item.name.toLowerCase()]: purchasedItems[item.name.toLowerCase()] + 1,
+      [item.id]: purchasedItems[item.id] + 1,
     });
     setNumCookies(numCookies - item.cost);
   };
@@ -55,6 +56,12 @@ const Game = () => {
       window.removeEventListener("keydown", handleKeydown);
     };
   }, [numCookies]);
+  React.useEffect(() => {
+    console.log(ref);
+    if (ref.current !== null) {
+      ref.current.focus();
+    }
+  }, [ref]);
 
   return (
     <Wrapper>
@@ -63,18 +70,15 @@ const Game = () => {
           <Total>{numCookies} cookies</Total>
           <strong>{numOfGeneratedCookies}</strong> cookies per second
         </Indicator>
-        <Button>
-          <Cookie
-            src={cookieSrc}
-            onClick={() => setNumCookies(numCookies + 1)}
-          />
+        <Button onClick={() => setNumCookies(numCookies + 1)}>
+          <Cookie src={cookieSrc} />
         </Button>
       </GameArea>
 
       <ItemArea>
         <SectionTitle>Items:</SectionTitle>
-        {items.map((item) => {
-          return (
+        {items.map((item, index) => {
+          let output = (
             <Item
               key={item.id}
               item={item}
@@ -82,6 +86,18 @@ const Game = () => {
               handleClick={handleClick}
             />
           );
+          if (index === 0) {
+            output = (
+              <Item
+                myRef={ref}
+                key={item.id}
+                item={item}
+                numOwned={purchasedItems[item.name.toLowerCase()]}
+                handleClick={handleClick}
+              />
+            );
+          }
+          return output;
         })}
       </ItemArea>
       <HomeLink to="/">Return home</HomeLink>
