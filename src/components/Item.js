@@ -1,9 +1,15 @@
 import React from "react";
 import styled from "styled-components";
 
-const Item = ({ item, numOwned, handleClick, myRef }) => {
-  let output = (
-    <ItemBox onClick={() => handleClick(item)}>
+const Item = ({ item, numOwned, handleClick, index }) => {
+  const firstItem = React.useRef(null);
+  React.useEffect(() => {
+    if (index === 0) {
+      firstItem.current.focus();
+    }
+  }, [index]);
+  return (
+    <ItemBox ref={firstItem} onClick={() => handleClick(item)}>
       <div>
         <h3>{item.name}</h3>
         <p>
@@ -13,20 +19,6 @@ const Item = ({ item, numOwned, handleClick, myRef }) => {
       <span>{numOwned}</span>
     </ItemBox>
   );
-  if (myRef !== null && myRef !== undefined) {
-    output = (
-      <ItemBox ref={myRef} onClick={() => handleClick(item)}>
-        <div>
-          <h3>{item.name}</h3>
-          <p>
-            Cost: {item.cost} cookie(s).Produces {item.value} cookies/second.
-          </p>
-        </div>
-        <span>{numOwned}</span>
-      </ItemBox>
-    );
-  }
-  return output;
 };
 export default Item;
 

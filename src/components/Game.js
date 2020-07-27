@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import Item from "./Item";
 import useInterval from "../hooks/use-interval.hook";
+import useKeyDown from "../hooks/useKeyDown";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 
 import cookieSrc from "../cookie.svg";
 
@@ -23,7 +25,6 @@ const Game = () => {
     grandma: 0,
     farm: 0,
   });
-  const ref = React.useRef(null);
   const numOfGeneratedCookies = calculateCookiesPerTick(purchasedItems);
   const handleClick = (item) => {
     if (numCookies < item.cost) {
@@ -42,26 +43,8 @@ const Game = () => {
     setNumCookies(numCookies + numOfGeneratedCookies);
   }, 1000);
 
-  React.useEffect(() => {
-    document.title = numCookies + " cookies - Workshop";
-  }, [numCookies]);
-  React.useEffect(() => {
-    const handleKeydown = (ev) => {
-      if (ev.code === "Space") {
-        setNumCookies(numCookies + 1);
-      }
-    };
-    window.addEventListener("keydown", handleKeydown);
-    return () => {
-      window.removeEventListener("keydown", handleKeydown);
-    };
-  }, [numCookies]);
-  React.useEffect(() => {
-    console.log(ref);
-    if (ref.current !== null) {
-      ref.current.focus();
-    }
-  }, [ref]);
+  useDocumentTitle(numCookies, "Workshop");
+  useKeyDown("Space", () => setNumCookies(numCookies + 1));
 
   return (
     <Wrapper>
@@ -78,26 +61,15 @@ const Game = () => {
       <ItemArea>
         <SectionTitle>Items:</SectionTitle>
         {items.map((item, index) => {
-          let output = (
+          return (
             <Item
+              index={index}
               key={item.id}
               item={item}
               numOwned={purchasedItems[item.name.toLowerCase()]}
               handleClick={handleClick}
             />
           );
-          if (index === 0) {
-            output = (
-              <Item
-                myRef={ref}
-                key={item.id}
-                item={item}
-                numOwned={purchasedItems[item.name.toLowerCase()]}
-                handleClick={handleClick}
-              />
-            );
-          }
-          return output;
         })}
       </ItemArea>
       <HomeLink to="/">Return home</HomeLink>
