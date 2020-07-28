@@ -46,6 +46,7 @@ const Game = () => {
     if (item.type === "upgrade") {
       clickerPower = clickerPower * 2;
     }
+    item.cost = Math.floor(item.cost * 1.3);
     setNumCookies(numCookies - item.cost);
   };
   useInterval(() => {
