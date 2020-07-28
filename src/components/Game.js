@@ -9,21 +9,29 @@ import useDocumentTitle from "../hooks/useDocumentTitle";
 import cookieSrc from "../cookie.svg";
 
 const items = [
-  { id: "cursor", name: "Cursor", cost: 10, value: 1 },
-  { id: "grandma", name: "Grandma", cost: 100, value: 10 },
-  { id: "farm", name: "Farm", cost: 1000, value: 80 },
+  { id: "cursor", name: "Cursor", cost: 10, value: 1, type: "building" },
+  { id: "grandma", name: "Grandma", cost: 100, value: 10, type: "building" },
+  { id: "farm", name: "Farm", cost: 1000, value: 80, type: "building" },
+  {
+    id: "megacursor",
+    name: "MegaCursor",
+    cost: 50,
+    value: 2,
+    type: "upgrade",
+  },
 ];
 const calculateCookiesPerTick = (items) => {
   return items.cursor * 1 + items.grandma * 10 + items.farm * 80;
 };
+let clickerPower = 1;
 
 const Game = () => {
-  // TODO: Replace this with React state!
   const [numCookies, setNumCookies] = React.useState(0);
   const [purchasedItems, setPurchasedItems] = React.useState({
     cursor: 0,
     grandma: 0,
     farm: 0,
+    megacursor: 0,
   });
   const numOfGeneratedCookies = calculateCookiesPerTick(purchasedItems);
   const handleClick = (item) => {
@@ -35,11 +43,12 @@ const Game = () => {
       ...purchasedItems,
       [item.id]: purchasedItems[item.id] + 1,
     });
+    if (item.type === "upgrade") {
+      clickerPower = clickerPower * 2;
+    }
     setNumCookies(numCookies - item.cost);
   };
   useInterval(() => {
-    const numOfGeneratedCookies = calculateCookiesPerTick(purchasedItems);
-    // Add this number of cookies to the total
     setNumCookies(numCookies + numOfGeneratedCookies);
   }, 1000);
 
@@ -53,7 +62,7 @@ const Game = () => {
           <Total>{numCookies} cookies</Total>
           <strong>{numOfGeneratedCookies}</strong> cookies per second
         </Indicator>
-        <Button onClick={() => setNumCookies(numCookies + 1)}>
+        <Button onClick={() => setNumCookies(numCookies + clickerPower)}>
           <Cookie src={cookieSrc} />
         </Button>
       </GameArea>
@@ -61,15 +70,29 @@ const Game = () => {
       <ItemArea>
         <SectionTitle>Items:</SectionTitle>
         {items.map((item, index) => {
-          return (
-            <Item
-              index={index}
-              key={item.id}
-              item={item}
-              numOwned={purchasedItems[item.name.toLowerCase()]}
-              handleClick={handleClick}
-            />
-          );
+          if (item.type === "building") {
+            return (
+              <Item
+                index={index}
+                key={item.id}
+                item={item}
+                type={item.type}
+                numOwned={purchasedItems[item.name.toLowerCase()]}
+                handleClick={handleClick}
+              />
+            );
+          } else {
+            return (
+              <Item
+                index={index}
+                key={item.id}
+                item={item}
+                type={item.type}
+                numOwned={purchasedItems[item.name.toLowerCase()]}
+                handleClick={handleClick}
+              />
+            );
+          }
         })}
       </ItemArea>
       <HomeLink to="/">Return home</HomeLink>

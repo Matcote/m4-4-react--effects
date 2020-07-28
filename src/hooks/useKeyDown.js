@@ -15,15 +15,3 @@ function useKeyDown(code, callback) {
 }
 
 export default useKeyDown;
-
-// React.useEffect(() => {
-//     const handleKeydown = (ev) => {
-//       if (ev.code === "Space") {
-//         setNumCookies(numCookies + 1);
-//       }
-//     };
-//     window.addEventListener("keydown", handleKeydown);
-//     return () => {
-//       window.removeEventListener("keydown", handleKeydown);
-//     };
-//   });
